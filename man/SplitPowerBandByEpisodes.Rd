@@ -7,7 +7,7 @@
 }
 \usage{
 SplitPowerBandByEpisodes(HRVData, indexFreqAnalysis  =
-length(HRVData$FreqAnalysis), Tag = "", 
+length(HRVData$FreqAnalysis), Tag = "", doOutOfEpisodeAnalysis=FALSE,
 		verbose=NULL)
 }
 \arguments{
@@ -16,6 +16,7 @@ length(HRVData$FreqAnalysis), Tag = "",
   \item{indexFreqAnalysis}{ Reference to the data structure that will contain 
   the variability analysis }
   \item{Tag}{ Type of episode }
+  \item{doOutOfEpisodeAnalysis}{ Weather or not to do outOfEpisode analysis }
   \item{verbose}{ Deprecated argument maintained for compatibility, use 
   SetVerbose() instead }
 }

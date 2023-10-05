@@ -4,9 +4,15 @@
 \alias{AnalyzePowerBandsByEpisodes}
 \title{Analyze power band by episodes}
 \usage{
-AnalyzePowerBandsByEpisodes(HRVData,
-  indexFreqAnalysis = length(HRVData$FreqAnalysis), Tag = "",
-  verbose = NULL, func, ...)
+AnalyzePowerBandsByEpisodes(
+  HRVData,
+  indexFreqAnalysis = length(HRVData$FreqAnalysis),
+  Tag = "",
+  doOutOfEpisodeAnalysis = FALSE,
+  verbose = NULL,
+  func,
+  ...
+)
 }
 \arguments{
 \item{HRVData}{Data structure that stores the beats register and information related to it.}
@@ -14,6 +20,8 @@ AnalyzePowerBandsByEpisodes(HRVData,
 \item{indexFreqAnalysis}{Integer value denoting which frequency analysis is going to be analyzed using func. Default: 1}
 
 \item{Tag}{Type of episode}
+
+\item{doOutOfEpisodeAnalysis}{Boolean to do out of episodes analysis}
 
 \item{verbose}{Deprecated argument maintained for compatibility, use SetVerbose() instead}
 
@@ -47,4 +55,3 @@ hrv.data = CalculatePowerBand( hrv.data , indexFreqAnalysis= 1,
 results = AnalyzePowerBandsByEpisodes(hrv.data,indexFreqAnalysis=1,
                                        Tag="Apnea",func=mean)}
 }
-

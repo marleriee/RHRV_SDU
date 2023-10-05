@@ -1,5 +1,5 @@
 SplitPowerBandByEpisodes <-
-  function(HRVData, indexFreqAnalysis = length(HRVData$FreqAnalysis), Tag="",
+  function(HRVData, indexFreqAnalysis = length(HRVData$FreqAnalysis), Tag="", doOutOfEpisodeAnalysis=FALSE,
            verbose=NULL) {
     # ------------------------------------------------
     # Splits Power Per Band using Episodes information
@@ -53,7 +53,8 @@ SplitPowerBandByEpisodes <-
       #    message("CenterOfFrame: ",CenterOfFrame)
       # }
       inEp = FALSE
-      outEp = TRUE
+      outEp = doOutOfEpisodeAnalysis
+      
       if (length(ActiveEpisodes$InitTime)>0) {
         for (j in 1:length(ActiveEpisodes$InitTime)) {
           begEp = ActiveEpisodes$InitTime[j]

@@ -1,5 +1,5 @@
 AnalyzeHRbyEpisodes <-
-function(HRVData, Tag="", func, ..., verbose=NULL) {
+function(HRVData, Tag="", doOutOfEpisodeAnalysis=FALSE, func, ..., verbose=NULL) {
 # ----------------------------------------------
 # Analyzes Heart Rate using Episodes information
 # ----------------------------------------------
@@ -25,8 +25,14 @@ function(HRVData, Tag="", func, ..., verbose=NULL) {
   )
   
   vectors = SplitHRbyEpisodes(HRVData, Tag = Tag)
-  result = list(resultIn = funcToApply(vectors$InEpisodes, ...),
-                resultOut = funcToApply(vectors$OutEpisodes, ...))
+  
+    if (doOutOfEpisodeAnalysis==TRUE) {
+      result = list(resultIn = funcToApply(vectors$InEpisodes, ...),
+                    resultOut = funcToApply(vectors$OutEpisodes, ...))
+    } else {
+      result = list(resultIn = funcToApply(vectors$InEpisodes, ...))
+    }
+   
   return(result)
 }
 

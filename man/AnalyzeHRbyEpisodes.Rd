@@ -5,11 +5,12 @@
   Analyzes Heart Rate allowing to evaluate the application of a desired function inside and outside episodes
 }
 \usage{
-AnalyzeHRbyEpisodes(HRVData, Tag="", func, ..., verbose=NULL) 
+AnalyzeHRbyEpisodes(HRVData, Tag="", doOutOfEpisodeAnalysis = FALSE, func, ..., verbose=NULL) 
 }
 \arguments{
   \item{HRVData}{ Data structure that stores the beats register and information related to it }
   \item{Tag}{ Type of episode }
+  \item{doOutOfEpisodeAnalysis}{ Do Out of episode analysis }
   \item{func}{ Function to be applied to Heart Rate Data inside and outside episodes }
   \item{...}{optional arguments to func}
   \item{verbose}{ Deprecated argument maintained for compatibility, use SetVerbose() instead }

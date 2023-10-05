@@ -1,3 +1,5 @@
+#Old MD5 entry f7ab29e93a89272001b16c072a2bf92c *R/CreateTimeAnalysis.R
+
 CreateTimeAnalysis <-
   function(HRVData, size=300, numofbins=NULL, interval=7.8125, verbose=NULL ) {
     # ----------------------------------------------------
@@ -32,26 +34,52 @@ CreateTimeAnalysis <-
     # SDNN
     HRVData$TimeAnalysis[[num+1]]$SDNN=sd(HRVData$Beat$RR)
     
+    #We need to get the RRdiffs
+    RRDiffs = diff(HRVData$Beat$RR)
+    
     WindowMin=head(HRVData$Beat$Time,n=1)
     WindowMax=WindowMin + size
     WindowIndex=1
     RRWindowMean=c(0)
     RRWindowSD=c(0)
+    RRWindowRMSSD=c(0)
     while (WindowMax < tail(HRVData$Beat$Time,1)) {
       RRWindow=HRVData$Beat$RR[HRVData$Beat$Time >= WindowMin & HRVData$Beat$Time < WindowMax]
+      
       # check if there is an interval without beats
       if (length(RRWindow) == 0){
-        message = paste(sep = "", "Interval without beats from ",WindowMin,
-                        " to ",WindowMax," seconds! Returning NA in SDANN and SDNNIDX")
-        warning(message)
+        #message = paste(sep = "", "Interval without beats from ",WindowMin,
+        #                " to ",WindowMax," seconds! Returning NA in SDANN and SDNNIDX")
+        #warning(message)
         # introduce the NAs to ensure that the user notices the warning
         RRWindowMean[WindowIndex] = NA
         RRWindowSD[WindowIndex] = NA
         # there is no need to compute more windows
-        break;
+        #break;
+      } else {
+        RRWindowMean[WindowIndex]=mean(RRWindow)
+        RRWindowSD[WindowIndex]=sd(RRWindow)
       }
-      RRWindowMean[WindowIndex]=mean(RRWindow)
-      RRWindowSD[WindowIndex]=sd(RRWindow)
+      
+      #Getting the RRdiffwindow
+      RRDiffWindow=RRDiffs[HRVData$Beat$Time >= WindowMin & HRVData$Beat$Time < WindowMax]
+      
+      # check if there is an interval without beats
+      if (length(RRDiffWindow) == 0){
+        #message = paste(sep = "", "Interval without beats from ",WindowMin,
+        #                " to ",WindowMax," seconds! Returning NA in rMSSDW")
+        #warning(message)
+        # introduce the NAs to ensure that the user notices the warning
+        RRWindowRMSSD[WindowIndex] = NA
+        # there is no need to compute more windows
+        #break;
+      } else {
+        
+        #Page 32 in the RHRV book
+        RRWindowRMSSD[WindowIndex]=sqrt(mean(RRDiffWindow^2))
+      }
+      
+      
       WindowMin = WindowMin+size
       WindowMax = WindowMax+size
       WindowIndex = WindowIndex+1
@@ -65,13 +93,19 @@ CreateTimeAnalysis <-
       warning("There is no window or just one window. Cannot compute the standard deviation! Returning NA in SDANN")
     }
     # SDANN
-    HRVData$TimeAnalysis[[num+1]]$SDANN=sd(RRWindowMean) 
+    HRVData$TimeAnalysis[[num+1]]$SDANN=sd(RRWindowMean, na.rm = TRUE) 
     
     # SDNNIDX
-    HRVData$TimeAnalysis[[num+1]]$SDNNIDX=mean(RRWindowSD) 
+    HRVData$TimeAnalysis[[num+1]]$SDNNIDX=mean(RRWindowSD, na.rm = TRUE) 
+    
+    #rMSSDw
+    HRVData$TimeAnalysis[[num+1]]$rMSSDw=mean(RRWindowRMSSD, na.rm = TRUE)
+    
+    HRVData$TimeAnalysis[[num+1]]$N_Windows=length(which(is.na(RRWindowRMSSD)==0))
+    HRVData$TimeAnalysis[[num+1]]$Na_Windows=length(which(is.na(RRWindowRMSSD)==1))
+    
     
     # pNN50
-    RRDiffs = diff(HRVData$Beat$RR)
     RRDiffs50=RRDiffs[abs(RRDiffs)>50]
     HRVData$TimeAnalysis[[num+1]]$pNN50=100.0*length(RRDiffs50)/length(RRDiffs)
     
@@ -106,6 +140,9 @@ CreateTimeAnalysis <-
         paste(" pNN50:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$pNN50), "%\n"),
         paste(" SDSD:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$SDSD), "msec.\n"),
         paste(" r-MSSD:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$rMSSD), "msec.\n"),
+        paste(" r-MSSDw:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$rMSSDw), "msec.\n"),
+        paste(" N_Window:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$N_Window), "\n"),
+        paste(" Na_Window:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$Na_Window), "\n"),
         paste(" IRRR:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$IRRR), "msec.\n"),
         paste(" MADRR:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$MADRR), "msec.\n"),
         paste(" TINN:", rhrvFormat(HRVData$TimeAnalysis[[num + 1]]$TINN), "msec.\n"),

@@ -24,7 +24,7 @@ export("AddEpisodes", "AnalyzeHRbyEpisodes","AnalyzePowerBandsByEpisodes",
        "RQA","RecurrencePlot","NonLinearNoiseReduction",
        "NonlinearityTests","SurrogateTest","OverplotEpisodes",
        "ExtractTimeSegment","Window","EstimatePSDSlope",
-       "ListEpisodes", "RemoveEpisodes", "ModifyEpisodes"
+       "ListEpisodes", "RemoveEpisodes", "ModifyEpisodes","CreateTimeAnalysisByEpisodes"
 )
 
 importFrom("grDevices", "palette", "rainbow", "topo.colors")
