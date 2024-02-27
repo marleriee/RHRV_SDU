@@ -31,7 +31,7 @@ The extension can be easily installed from GitHub.
 
 ```{r setup}
 remotes::install_github("marleriee/RHRV_SDU")
-library(RHRV_SDU)
+library(RHRV)
 ```
 
 ```{r theme, include = FALSE}
