@@ -1,7 +1,7 @@
 Package: RHRV
 Type: Package
 Title: Heart Rate Variability Analysis of ECG Data
-Version: 4.2.6
+Version: 5.0.0
 Date: 2020-12-14
 Maintainer: Leandro Rodriguez-Linares <leandro@uvigo.es>
 Authors@R: c(person("Leandro", "Rodriguez-Linares", 
@@ -39,3 +39,5 @@ Repository/R-Forge/DateTimeStamp: 2020-12-14 17:59:52
 Date/Publication: 2020-12-14 19:00:02 UTC
 NeedsCompilation: yes
 Packaged: 2020-12-14 18:08:23 UTC; rforge
+LazyData: true
+
