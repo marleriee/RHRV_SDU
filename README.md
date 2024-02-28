@@ -34,22 +34,6 @@ library(RHRV)
 theme_set(theme_bw(base_size = 10))
 ```
 
-------------------------------------------------------------------------
-
-The **RHRV_SDU** extension to the **RHRV** R package allows for the easy
-time- and frequency-analysis of heart rate variability (HRV) within
-episodes defined by start time and duration. Briefly, by removing the
-simultaneous computation of HRV outside the episodes of interest, we
-increase processing speed. Moreover, we include the
-`CreateTimeAnalysisByEpisodes` function which was so far only mentioned
-in an RHRV admin forum.
-
-#### This is package is a modification of the RHRV package --- Heart Rate Variability Analysis of ECG Data. Homepage: <http://rhrv.r-forge.r-project.org/>
-
-We modified RHRV while working on the publication: "*Facilitating
-ambulatory heart rate variability analysis using accelerometry-based
-classifications of body position and self-reported sleep*" (INSERT DOI
-WHEN PUBLISHED)
 
 ------------------------------------------------------------------------
 
@@ -58,15 +42,15 @@ WHEN PUBLISHED)
 The **RHRV_SDU** extension to the **RHRV** package can be employed to
 analyze HRV in defined episodes, such as episodes created using a
 classification algorithm for accelerometry data in free-living settings.
-As long as start time and duration of episodes were defined, e.g., even
+As long as the start time and duration of episodes were defined, e.g., even
 via self-report, the **RHRV_SDU** modifications allow for the easy
-analysis of within episode HRV. For information regarding the general
-use of the RHRV-functions, we recommend the RHRV documentation:
+analysis of within-episode HRV. For information regarding the general
+use of the RHRV functions, we recommend the RHRV documentation:
 <https://github.com/cran/RHRV>
 
 In the tutorial we present here, we highlight how **RHRV_SDU** may be
-used to compute and present ambulatory HRV, specifically RMSSD [ms], in
-episodes of accelerometry-classified behavior in three anonymized
+used to automatically compute and present ambulatory HRV, specifically RMSSD [ms], in
+episodes of accelerometry-classified behaviour in three anonymized
 individuals participating in the SCREENS randomized controlled trial,
 step-by-step.
 
@@ -95,7 +79,7 @@ library(lubridate)
 
 #### Datasets
 
--   This example requires two datasets integrated in the RHRV_SDU
+-   This example requires two datasets integrated into the RHRV_SDU
     package:
 
 1.  **Ex_Eps** data containing of the variables:
@@ -111,7 +95,7 @@ library(lubridate)
     | **Acc_AID**      | Activity Type                                   |
     | **X**            | Vector containing numerical values for episodes |
 
-2.  **Overview** data containing of the variables:
+2.  **overview** data containing the variables:
 
     | Variable       |                               |
     |----------------|-------------------------------|
@@ -130,9 +114,9 @@ Ex_Eps <- RHRV::Ex_Eps
 
 #### Files
 
--   There are sample single lead ECG files added in the package
-    Ex_M1.sdf, Ex_M2.sdf and Ex_F1.sdf
--   The data is stored in the extdata folder of the package
+-   We have added sample data containing single lead ECG files to the package:
+    *Ex_M1.sdf, Ex_M2.sdf and Ex_F1.sdf*
+-   The data is stored in the extdata folder of the package.
 -   The list of files is avaliable using:
 
 ```{r "SetDatafolder"}
@@ -153,16 +137,16 @@ print(dir_path)
 When analyzing HRV, different HRV outcomes are relevant for different
 lengths of recorded episodes. For our analysis, we focus on the main
 outcome RMSSD as well as several secondary HRV parameters. In the Ex_Eps
-data frame, all episodes in the positions standing, sitting, and lying
+data frame, all episodes in the accelerometry-defined position standing, sitting, and lying
 were extracted for three individuals. Moreover, we even include a 24-h
-episode and total sleep.
+episode and total sleep intervals.
 
 In the manuscript, we describe the pre-processing of the
 accelerometry-determined episodes: "*To qualify for time and frequency
 analysis, a minimum episode duration of 360 sec for each bout of
-physical behavior was required. The first and last 30 seconds of each
+physical behaviour was required. The first and last 30 seconds of each
 episode were removed to adjust for immediate changes in HRV associated
-with hemodynamic changes rather than the behavior itself, and this
+with hemodynamic changes rather than the behaviour itself, and this
 ensures a minimum epoch duration of five minutes (300 sec).*" All
 episodes in the Ex_Eps dataset have been pre-processed.
 
@@ -170,18 +154,18 @@ episodes in the Ex_Eps dataset have been pre-processed.
 
 ### Using RHRV to compute RHRV within episodes
 
-**To speed up processing and analysis of several HRV episodes for
+**To speed up the processing and analysis of several HRV episodes for
 multiple participants, we employ a for-loop.**
 
 1.  Initially, the location of the ECG or PPG files (e.g. .sdf file) on
-    your computer needs to be defined under *datafolder*. For the
-    example data, the .sdf files are integrated in the RHRV_SDU
-    extension Moreover, the files describing *episodes-of-interest* as
+    your computer needs to be defined under *datafolder* (see code above in **Files**). For the
+    example data, the .sdf files are integrated into the RHRV_SDU
+    extension. Moreover, the files describing *episodes-of-interest* as
     well as *participant characteristics* need to be loaded into R as
-    explained above.
+    explained above (see code above in **Datasets**).
 
 To run the following code on your own datasets, you need to define the
-location of your HR files, similar to the tutorial. Moreover, the
+location of your ECG/PPG files on your computer, similar to the tutorial. Moreover, the
 episode and sample characteristics datasets need to be loaded into R
 containing all columns included in the example data.
 
@@ -189,20 +173,19 @@ containing all columns included in the example data.
 
 **Automatic Analysis using For-Loops**
 
-2.  We use individual for-loops for time-analysis and frequency
+2.  We use individual for-loops for time analysis and frequency
     analysis, respectively. The for-loop cycles through each participant
     included in the overview file. A file path to the sdf.file with ECG
     data of each participant is created, and it is confirmed that a file
-    exists. Next, the *load_HRV* and the *HRV_proc* command combine
+    exists. Next, our predefined *load_HRV* and the *HRV_proc* command combine
     several commands of the original RHVR package into one.
 
 -   **load_HRV** combines *CreateHRVData()*, *SetVerbose()*,
     *LoadBeatSuunto()*
 -   **HRV_proc** combines *BuildNIHR()*, 2x *filter_HRV()*,
     *InterpolateNIHR()*, *CreateTimeAnalysis()*, *CreateFreqAnalysis()*,
-    and *CalculatePowerBand()* - **filter_HRV** in the RHRV_SDU
-    extensions filters the ECG data using the parameters long=50,
-    minbpm=25, maxbpm=(220 - age), last=13.
+    and *CalculatePowerBand()*
+    - **filter_HRV** uses the parameters long=50, nbpm=25, maxbpm=(220 - age), last=13.
 
 
 ##### Functions Used
@@ -321,7 +304,7 @@ TA_results <- merge (Ex_Eps, results, by=c("HRV_tag", "HRV_duration", "HRV_time"
 
 ##### Frequency Analysis
 
-Next, a similar for-loop is used for frequency-analysis.
+Next, a similar for-loop is used for frequency-analysis. This step takes a bit more time.
 
 ```{r "Frequency Analysis", warning=FALSE}
 results = data.frame();
@@ -482,7 +465,6 @@ HRV](https://github.com/marleriee/RHRV_SDU/blob/master/README_PLOT.png)
 
 ### Conclusion
 
-##### We hope that this tutorial makes it easy to understand how **RHRV** may be used to analyze HRV within episodes, such as episodes classified using self-report or accelerometry. In case of any questions, please do not hesitate to contact us.
+#### We hope that this tutorial makes it easy to understand how **RHRV** may be used to analyze HRV within episodes, such as episodes classified using self-report or accelerometry. In case of any questions, please do not hesitate to contact us.
 
-\`\`\`
 
