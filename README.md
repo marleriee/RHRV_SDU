@@ -1,8 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
 
 # RHRV_SDU
 
@@ -30,6 +25,7 @@ WHEN PUBLISHED)
 The extension can be easily installed from GitHub.
 
 ```{r setup}
+remove.packages("RHRV")
 remotes::install_github("marleriee/RHRV_SDU")
 library(RHRV)
 ```
@@ -79,10 +75,11 @@ step-by-step.
 ### Load required packages
 
 ```{r "Load packages", warning=FALSE, message=FALSE}
+install.packages(c("ggplot2", "reshape2", "dplyr", "readxl", "ggpubr", "tidyr", "viridis", "hrbrthemes", "ggthemes", "lubridate"))
+
 library(ggplot2)
 library(reshape2)
 library(dplyr)
-library(limma)
 library(readxl)
 library(ggpubr)
 library(tidyr)
@@ -125,25 +122,29 @@ library(lubridate)
 The data sets can be easily loaded into R:
 
 ```{r "Load Tutorial Data"}
-data(INSERT)
-head(INSERT)
-data(INSERT)
-head(INSERT)
+overview <- RHRV::overview
+Ex_Eps <- RHRV::Ex_Eps
 ```
 
 ------------------------------------------------------------------------
 
 #### Files
 
--   There are sample single lead ECG files added in the package Ex_M1.sdf, Ex_M2.sdf and Ex_F1.sdf
+-   There are sample single lead ECG files added in the package
+    Ex_M1.sdf, Ex_M2.sdf and Ex_F1.sdf
 -   The data is stored in the extdata folder of the package
 -   The list of files is avaliable using:
 
-system.file("extdata", package = "RHRV") |> list.files()
+```{r "SetDatafolder"}
+datafolder <- system.file("extdata", package = "RHRV") |> list.dirs()
+```
 
--   The filename and folde of a specific file can be genereated using:
+-   The filename and folder of a specific file can be generated using:
 
-system.file("extdata", "Ex_F1.sdf", package = "RHRV")
+```{r "Find Specific File"}
+dir_path <- system.file("extdata", "Ex_F1.sdf", package = "RHRV")
+print(dir_path)
+```
 
 ------------------------------------------------------------------------
 
@@ -151,10 +152,10 @@ system.file("extdata", "Ex_F1.sdf", package = "RHRV")
 
 When analyzing HRV, different HRV outcomes are relevant for different
 lengths of recorded episodes. For our analysis, we focus on the main
-outcome RMSSD as well as several secondary HRV parameters. In the
-Ex_Eps data frame, all episodes in the positions standing, sitting, and
-lying were extracted for three individuals. Moreover, we even include a
-24-h episode and total sleep.
+outcome RMSSD as well as several secondary HRV parameters. In the Ex_Eps
+data frame, all episodes in the positions standing, sitting, and lying
+were extracted for three individuals. Moreover, we even include a 24-h
+episode and total sleep.
 
 In the manuscript, we describe the pre-processing of the
 accelerometry-determined episodes: "*To qualify for time and frequency
@@ -173,24 +174,16 @@ episodes in the Ex_Eps dataset have been pre-processed.
 multiple participants, we employ a for-loop.**
 
 1.  Initially, the location of the ECG or PPG files (e.g. .sdf file) on
-    your computer needs to be defined under *datafolder*. Moreover, the
-    files describing *episodes-of-interest* as well as *participant
-    characteristics* need to be loaded into R as explained above.
+    your computer needs to be defined under *datafolder*. For the
+    example data, the .sdf files are integrated in the RHRV_SDU
+    extension Moreover, the files describing *episodes-of-interest* as
+    well as *participant characteristics* need to be loaded into R as
+    explained above.
 
 To run the following code on your own datasets, you need to define the
 location of your HR files, similar to the tutorial. Moreover, the
 episode and sample characteristics datasets need to be loaded into R
 containing all columns included in the example data.
-
-```{r "Define Datafolder"}
-#datafolder <- "/Users/marlenerietz/Library/CloudStorage/OneDrive-KarolinskaInstitutet/HRV/Revision Manuscript/Files for README/"
-#"FilePath to Folder to ECG/PPG FILES"
-```
-
-```{r "Load Example Data"}
-overview <- RHRV::overview
-Ex_Eps <- RHRV::Ex_Eps
-```
 
 ------------------------------------------------------------------------
 
@@ -205,23 +198,16 @@ Ex_Eps <- RHRV::Ex_Eps
 
 -   **load_HRV** combines *CreateHRVData()*, *SetVerbose()*,
     *LoadBeatSuunto()*
--   **HRV_proc** combines *BuildNIHR()*,
+-   **HRV_proc** combines *BuildNIHR()*, 2x *filter_HRV()*,
+    *InterpolateNIHR()*, *CreateTimeAnalysis()*, *CreateFreqAnalysis()*,
+    and *CalculatePowerBand()* - **filter_HRV** in the RHRV_SDU
+    extensions filters the ECG data using the parameters long=50,
+    minbpm=25, maxbpm=(220 - age), last=13.
 
-2x *filter_HRV()*, *InterpolateNIHR()*, *CreateTimeAnalysis()*,
-*CreateFreqAnalysis()*, and *CalculatePowerBand()* - **filter_HRV** in
-the RHRV_SDU extensions filters the ECG data using the parameters
-long=50, minbpm=25, maxbpm=(220 - age), last=13.
 
-Then, all episodes for a participant are stored in the dataframe
-*allepisodes*. *List1* is defined using the RHRV *AddEpisodes* command.
-Then, another for-loop cycles through all episodes, runs time-analysis,
-and stores the results for time-analyses in the *results* dataframe. The
-results dataframe can be merged with the Ex_Eps dataframe using the
-episode Tags.
+##### Functions Used
 
-##### Time Analysis
-
-```{r "Time Analysis", warning=FALSE}
+```{r "Utility Functions", warning=FALSE}
 
 load_HRV = function(title, input) {
   HRVdata <- CreateHRVData()
@@ -259,13 +245,24 @@ add_episodes = function (title) {
 time_analysis_eps = function(title) {
   results_time_sitting <- CreateTimeAnalysisByEpisodes(list1, Tag=c(list_episodes$HRV_tag), size=300, interval=7.8125)
 }
+```
 
-overview <- RHRV::overview
-Ex_Eps <- RHRV::Ex_Eps
+------------------------------------------------------------------------
+
+3. Then, all episodes for a participant are stored in the dataframe
+*allepisodes*. *List1* is defined using the RHRV *AddEpisodes* command.
+Another for-loop cycles through all episodes, runs time-analysis,
+and stores the results for time-analyses in the *results* dataframe. The
+results dataframe can be merged with the Ex_Eps dataframe using the
+episode Tags.
+
+##### Time Analysis
+
+Below, find the complete for-loop for the time-analysis.
+
+```{r "Time Analysis", warning=FALSE}
 
 results = data.frame();
-
-datafolder <- system.file("extdata", package = "RHRV") |> list.dirs()
 
 for (i in 1:length(overview))  {
   
@@ -324,13 +321,15 @@ TA_results <- merge (Ex_Eps, results, by=c("HRV_tag", "HRV_duration", "HRV_time"
 
 ##### Frequency Analysis
 
+Next, a similar for-loop is used for frequency-analysis.
+
 ```{r "Frequency Analysis", warning=FALSE}
 results = data.frame();
 
 for (i in 1:length(overview$Subject_ID))  {
   
   #Creating path for file
-  fpath = paste0(datafolder,overview$Subject_ID[i],".sdf")
+  fpath = paste0(datafolder,'/',overview$Subject_ID[i],".sdf")
   
   haveFile = file.exists(fpath)
   
@@ -486,3 +485,4 @@ HRV](https://github.com/marleriee/RHRV_SDU/blob/master/README_PLOT.png)
 ##### We hope that this tutorial makes it easy to understand how **RHRV** may be used to analyze HRV within episodes, such as episodes classified using self-report or accelerometry. In case of any questions, please do not hesitate to contact us.
 
 \`\`\`
+
